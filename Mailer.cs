@@ -13,7 +13,6 @@ namespace LightNetMailer
 {
     internal class Mailer
     {
-
         public string From;
         private string FromName;
         private string FromEmail;
@@ -35,16 +34,15 @@ namespace LightNetMailer
         private string ServerAdress;
         private int Port;
 
-
         public string Title;
         public string PathToMessageFile;
         public string charset;
         public string PathToLogFile;
         public string username;
         public string password;
+
+        public bool BodyIsHtml = false;
         public List<string> attachmentsPaths = new List<string>();
-
-
 
         SmtpClient smtpClient;
         MailAddress fromMail;
@@ -54,27 +52,38 @@ namespace LightNetMailer
         MailAddressCollection bccMails = new MailAddressCollection();
 
         List<Attachment> attachments = new List<Attachment>();
-        
-        
+               
         MailMessage MailMessage;
-        public void PrepareSmtpClient()
+
+        public Mailer PrepareSmtpClient()
         {           
             smtpClient = new SmtpClient(ServerAdress,Port);
             smtpClient.UseDefaultCredentials = false;           
             smtpClient.EnableSsl = true;
             NetworkCredential creds = new NetworkCredential(this.username.Trim(), this.password.Trim());         
-            smtpClient.Credentials = creds;                   
+            smtpClient.Credentials = creds;
+
+            return this;
         }
 
-        public void PrepareFrom()
-        {            
-            string email = this.From.Substring(this.From.IndexOf('<'));
-            email = email.Trim('<').Trim('>');            
-            string name = this.From.Substring(0, this.From.IndexOf("<")).Trim();                   
-            this.fromMail = new MailAddress(email,name);
+        public Mailer PrepareFrom()
+        {
+            if (this.From.Contains("<") && this.From.Contains(">"))
+            {
+                string email = this.From.Substring(this.From.IndexOf('<'));
+                email = email.Trim('<').Trim('>');
+                string name = this.From.Substring(0, this.From.IndexOf("<")).Trim();
+                this.fromMail = new MailAddress(email, name);
+            }
+            else
+            {
+                this.fromMail = new MailAddress(this.From.Trim(), this.From.Trim());
+            }
+
+            return this;
         }
 
-        public void PrepareTo()
+        public Mailer PrepareTo()
         {
             if (this.To.Contains(";"))
             {
@@ -83,15 +92,16 @@ namespace LightNetMailer
                 {
                     toMails.Add(new MailAddress(a));
                 }
-
             }
             else
             {
                 toMails.Add(new MailAddress(this.To));
             }
+
+            return this;
         }
 
-        public void PrepareBCC()
+        public Mailer PrepareBCC()
         {
             if (this.bcc is not null)
             {
@@ -108,9 +118,11 @@ namespace LightNetMailer
                     bccMails.Add(new MailAddress(this.bcc));
                 }
             }
+
+            return this;
         }
 
-        public void PrepareCC()
+        public Mailer PrepareCC()
         {
             if (this.cc is not null)
             {
@@ -127,18 +139,19 @@ namespace LightNetMailer
                     ccMails.Add(new MailAddress(this.cc));
                 }
             }
-
+            return this;
         }
 
-        public void PrepareAttachments()
+        public Mailer PrepareAttachments()
         {
             foreach(string AttachmentsPath in this.attachmentsPaths)
             {
                 this.attachments.Add(new Attachment(AttachmentsPath));              
             }
+            return this;
         }
 
-        public void PrepareMessage()
+        public Mailer PrepareMessage()
         {
             MailMessage = new MailMessage();
 
@@ -148,17 +161,22 @@ namespace LightNetMailer
             attachments.ForEach(attachment => this.MailMessage.Attachments.Add(attachment));
 
             this.MailMessage.From = this.fromMail;
-            this.MailMessage.Subject = this.Title;                     
-            this.MailMessage.Body = File.ReadAllText(this.PathToMessageFile.Split("=")[1]);
-            this.MailMessage.BodyEncoding = Encoding.UTF8;
-            this.MailMessage.IsBodyHtml = false;
+            this.MailMessage.Subject = this.Title;
+
+            if (this.PathToMessageFile != null)
+            {
+                this.MailMessage.Body = File.ReadAllText(this.PathToMessageFile.Split("=")[1]);
+                this.MailMessage.BodyEncoding = Encoding.UTF8;
+                this.MailMessage.IsBodyHtml = this.BodyIsHtml;
+            }
+
+            return this;
         }
 
-        public void SendMessage()
+        public Mailer SendMessage()
         {
-
-              smtpClient.Send(MailMessage);
-           // Console.WriteLine(MailMessage.Bcc[0].Address.ToString());
+            smtpClient.Send(MailMessage);
+            return this;
            
         }
 

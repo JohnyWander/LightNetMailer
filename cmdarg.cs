@@ -13,6 +13,8 @@ namespace LightNetMailer
         public string ArgHelpMessage;
         public Action<string> ArgAction;
 
+        public bool IsRequired = false;
+
         public cmdarg(string Argname,string ArgHelpMessage,Action<string> ArgAction) // for list
         {
             this.ArgName = Argname;
@@ -20,7 +22,7 @@ namespace LightNetMailer
             this.ArgAction = ArgAction;
         }
 
-        public cmdarg(string Argname,string ArgHelpMessage,string ArgValue,Action<string> ArgAction)
+        public cmdarg(string Argname,string ArgHelpMessage,string ArgValue,Action<string> ArgAction) // for enabled
         {
             this.ArgName = Argname;
             this.ArgHelpMessage = ArgHelpMessage;
@@ -32,6 +34,12 @@ namespace LightNetMailer
         public void InvokeParamAction()
         {
            this.ArgAction.Invoke(this.ArgValue);
+        }
+
+        public cmdarg SetRequired()
+        {
+            IsRequired = true;
+            return this;
         }
     }
 }
