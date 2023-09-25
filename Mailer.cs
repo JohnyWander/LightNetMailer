@@ -118,7 +118,6 @@ namespace LightNetMailer
                     bccMails.Add(new MailAddress(this.bcc));
                 }
             }
-
             return this;
         }
 
