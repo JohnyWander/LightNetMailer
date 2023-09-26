@@ -4,6 +4,11 @@ using System.Text;
 
 namespace LightNetMailer
 {
+    enum LogType
+    {
+        SUCCESS,
+        ERROR,
+    }
     internal class Program
     {
         static List<cmdarg> AvaiableCmdAargs = new List<cmdarg>()
@@ -52,12 +57,16 @@ namespace LightNetMailer
 
                     if (Log)
                     {
-
+                        WriteLog($"Sucessfully sent mail - FROM {mailer.From} TO {mailer.To} TITLE {mailer.Title}",LogType.SUCCESS);
                     }
                 }
                 catch(Exception e)
                 {
-
+                    if (Log)
+                    {
+                        WriteLog($"FAIL - Failed with:{e.GetType().Name} {e.Message}", LogType.ERROR);
+                    }
+                    WriteErrorMessage($"FAIL - Failed with:{e.GetType().Name} {e.Message}");
                 }
             }
             else
@@ -141,6 +150,13 @@ namespace LightNetMailer
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(message);
             Console.ResetColor();
+        }
+
+        static void WriteLog(string Message,LogType type)
+        {
+            DateTime x = DateTime.Now;
+            string logMessage = $"[{x.Day}-{x.Month}-{x.Year} {x.Hour}:{x.Minute}:{x.Year}][{type.ToString()}] {Message}\n";
+            File.AppendAllText(LogFilePath,logMessage);
         }
 
         static void Crash(string CrashMessage)
