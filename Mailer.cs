@@ -41,6 +41,8 @@ namespace LightNetMailer
         public string username;
         public string password;
 
+        public bool UseSSL = false;
+
         public bool BodyIsHtml = false;
         public List<string> attachmentsPaths = new List<string>();
 
@@ -58,8 +60,8 @@ namespace LightNetMailer
         public Mailer PrepareSmtpClient()
         {           
             smtpClient = new SmtpClient(ServerAdress,Port);
-            smtpClient.UseDefaultCredentials = false;           
-            smtpClient.EnableSsl = true;
+            smtpClient.UseDefaultCredentials = false;
+            smtpClient.EnableSsl = UseSSL;
             NetworkCredential creds = new NetworkCredential(this.username.Trim(), this.password.Trim());         
             smtpClient.Credentials = creds;
 

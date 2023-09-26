@@ -25,6 +25,7 @@ namespace LightNetMailer
             new cmdarg("-xu","-xu username - username to smtp server login", (string username) => mailer.username = username).SetRequired(),
             new cmdarg("-xp","-xp password - password to smtp server login", (string password) => mailer.password = password).SetRequired(),
             new cmdarg("-html","-html - use if mail body is html", (string x) => mailer.BodyIsHtml = true),
+            new cmdarg("-ssl","-ssl - use if your smtp server uses ssl", (string x) => mailer.UseSSL = true),
             new cmdarg("-h","-h - displays help message",(string x) => DisplayHelpMessage())
 
         };
